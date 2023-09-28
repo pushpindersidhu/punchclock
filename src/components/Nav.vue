@@ -19,7 +19,7 @@ const signOut = async () => {
 </script>
 
 <template>
-    <nav class="h-16 flex justify-between items-center px-8 border-b-[1px] dark:border-zinc-800">
+    <nav class="h-16 flex justify-between items-center px-8 bg-zinc-50 dark:bg-black">
         <h1 class="text-zinc-800 dark:text-zinc-100 text-sm font-bold">
             <RouterLink to="/">
                 Punch<span class="text-accent-400">Clock</span>
