@@ -40,15 +40,9 @@ function signUp() {
 </script>
 
 <template>
-    <div
-        class="z-10 flex h-full w-full items-center justify-center bg-white backdrop-blur dark:bg-black/50"
-    >
-        <div
-            class="flex w-full max-w-sm flex-col items-center rounded-lg bg-zinc-100 p-8 shadow-lg dark:bg-zinc-950"
-        >
-            <h1
-                class="text-md m-4 py-2 font-bold text-zinc-800 dark:text-zinc-300"
-            >
+    <div class="z-10 flex h-full w-full items-center justify-center bg-white backdrop-blur dark:bg-black/50">
+        <div class="flex w-full max-w-sm flex-col items-center rounded-lg bg-zinc-100 p-8 shadow-lg dark:bg-zinc-950">
+            <h1 class="text-md m-4 py-2 font-bold text-zinc-800 dark:text-zinc-300">
                 Register
             </h1>
 
@@ -60,7 +54,7 @@ function signUp() {
 
             <div class="mt-4 text-sm text-gray-400">
                 Already have an account ?
-                <RouterLink to="/signin" class="text-amber-500 hover:underline">
+                <RouterLink to="/signin" class="text-accent-500 hover:underline">
                     Sign in
                 </RouterLink>
             </div>
