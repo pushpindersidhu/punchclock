@@ -1,16 +1,3 @@
-import React from "react";
-import { BsGearFill, BsChatDotsFill } from "react-icons/bs";
-import { GiReactor } from "react-icons/gi";
-
-import useAuth from "../hooks/useAuth";
-
-import SideBarItem from "./common/SideBarItem";
-
-const SideBar = () => {
-  const { user } = useAuth();
-
-  return (
-
 <script setup lang="ts">
 import SidebarItem from './SidebarItem.vue';
 import ChatIcon from './icons/ChatIcon.vue';
