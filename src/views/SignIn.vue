@@ -2,23 +2,25 @@
 import Input from "../components/common/Input.vue";
 import Button from "../components/common/Button.vue";
 import { RouterLink, useRouter } from "vue-router";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { ref } from "vue";
+import { useAuthStore } from "../stores/auth";
 
-import { firebaseApp } from "../firebase";
+const router = useRouter();
+const auth = useAuthStore();
+
+if (auth.user) {
+    router.push("/");
+}
 
 const email = ref("");
 const password = ref("");
 
-const router = useRouter();
-
-const signIn = async () => {
-    const auth = getAuth(firebaseApp);
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    if (auth.currentUser) {
+const submit = async () => {
+    try {
+        await auth.signIn(email.value, password.value);
         router.push("/");
-    } else {
-        alert("Invalid credentials");
+    } catch (error) {
+        console.log(error);
     }
 };
 
@@ -34,7 +36,7 @@ const signIn = async () => {
             <Input v-model:value="email" placeholder="Email" type="email" />
             <Input v-model:value="password" placeholder="Password" type="password" />
 
-            <Button text="Sign in" @click="signIn" />
+            <Button text="Sign in" @click="submit" />
 
             <div class="mt-4 text-sm text-gray-400">
                 Don't have an account ?

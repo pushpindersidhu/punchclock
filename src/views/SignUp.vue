@@ -1,42 +1,38 @@
 <script setup lang="ts">
 import Input from "../components/common/Input.vue";
 import Button from "../components/common/Button.vue";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import { firebaseApp } from "../firebase";
+import { useAuthStore } from "../stores/auth";
 
-const auth = getAuth(firebaseApp);
 const router = useRouter();
+const auth = useAuthStore();
 
 const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
 
-function signUp() {
-    if (email.value === "") {
-        alert("Email cannot be empty");
-        return;
-    }
-    
-    if (password.value.length < 6) {
-        alert("Password must be at least 6 characters");
-        return;
-    }
-
+function onSubmit() {
     if (password.value !== confirmPassword.value) {
         alert("Passwords do not match");
         return;
     }
 
-    createUserWithEmailAndPassword(auth, email.value, password.value)
-        .then((_userCredential) => {
-            router.push("/");
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+    if (password.value.length < 6) {
+        alert("Password must be at least 6 characters long");
+        return;
+    }
+
+    if (!email.value.includes("@")) {
+        alert("Invalid email");
+        return;
+    }
+
+    auth.signUp(email.value, password.value).then(() => {
+        router.push("/");
+    });
 }
+
 </script>
 
 <template>
@@ -50,7 +46,7 @@ function signUp() {
             <Input v-model:value="password" placeholder="Password" type="password" />
             <Input v-model:value="confirmPassword" placeholder="Confirm Password" type="password" />
 
-            <Button text="Register" :clickHandler="signUp" />
+            <Button text="Register" :clickHandler="onSubmit" />
 
             <div class="mt-4 text-sm text-gray-400">
                 Already have an account ?

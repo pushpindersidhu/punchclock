@@ -1,21 +1,10 @@
 <script setup lang="ts">
 import DarkLightModeToggle from "./common/DarkLightModeToggle.vue";
 import { RouterLink } from "vue-router";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { firebaseApp } from "../firebase";
-import { ref } from "vue";
+import { useAuthStore } from "../stores/auth";
 
-const auth = getAuth(firebaseApp);
+const auth = useAuthStore();
 
-const user = ref(auth.currentUser);
-
-onAuthStateChanged(auth, (currentUser) => {
-    user.value = currentUser;
-});
-
-const signOut = async () => {
-    await auth.signOut();
-};
 </script>
 
 <template>
@@ -31,17 +20,17 @@ const signOut = async () => {
             <span class="border-r-[1px] h-4 m-4 w-0 dark:border-zinc-600 border-zinc-300"></span>
 
             <RouterLink class="bg-zinc-900 hover:bg-zinc-700 text-white px-3 py-2 rounded-md text-sm shadow-sm" to="/signin"
-                v-if="!user">
+                v-if="!auth.user">
                 Sign In
             </RouterLink>
 
             <RouterLink class="bg-zinc-900 hover:bg-zinc-700 text-white px-3 py-2 rounded-md text-sm shadow-sm ml-4"
-                to="/signup" v-if="!user">
+                to="/signup" v-if="!auth.user">
                 Sign Up
             </RouterLink>
 
-            <button class="bg-zinc-900 hover:bg-zinc-700 text-white px-3 py-2 rounded-md text-sm shadow-sm" v-if="user"
-                @click="signOut">
+            <button class="bg-zinc-900 hover:bg-zinc-700 text-white px-3 py-2 rounded-md text-sm shadow-sm" v-if="auth.user"
+                @click="auth.signOut">
                 Sign Out
             </button>
         </div>
