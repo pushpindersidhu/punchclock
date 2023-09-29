@@ -8,6 +8,13 @@ const router = createRouter({
             path: "/",
             name: "home",
             component: HomeView,
+            children: [
+                {
+                    path: "chat",
+                    name: "chat",
+                    component: () => import("../views/ChatView.vue"),
+                },
+            ],
         },
         {
             path: "/signin",
@@ -18,7 +25,7 @@ const router = createRouter({
             path: "/signup",
             name: "signup",
             component: () => import("../views/SignUp.vue"),
-        }
+        },
     ],
 });
 

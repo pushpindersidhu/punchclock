@@ -5,6 +5,6 @@ import SidebarItem from './SidebarItem.vue';
 
 <template>
     <div class="z-20 flex h-full w-16 shrink-0 flex-col bg-zinc-50 dark:bg-black">
-        <SidebarItem icon="material-symbols:chat" tooltip="Chat" class="text-accent-500" />
+        <SidebarItem icon="material-symbols:chat" tooltip="Chat" class="text-accent-500" link="/chat" />
     </div>
 </template>
