@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount, Ref, VNodeRef } from 'vue';
+import { ref, onBeforeUnmount, Ref, watch, nextTick } from 'vue';
 import {
     collection,
     orderBy,
@@ -13,19 +13,12 @@ import { Icon } from "@iconify/vue";
 import Input from '../components/common/Input.vue';
 import { firebaseDb } from '../firebase';
 import { useAuthStore } from '../stores/auth';
-import { useRouter } from 'vue-router';
 import { User } from 'firebase/auth';
 import Message from "../components/Message.vue"
 import MessageType from '../types/Message';
-const router = useRouter();
 const auth = useAuthStore();
 
 const user: User | null = auth.user;
-
-if (!user) {
-    router.push('/signin');
-}
-
 
 const chatRef = collection(firebaseDb, 'chat');
 const chatQuery = query(chatRef, orderBy('createdAt'), limitToLast(50));
@@ -34,7 +27,7 @@ const message: Ref<string> = ref('');
 const chat: Ref<MessageType[]> = ref([]);
 const loading: Ref<boolean> = ref(true);
 const error: Ref<Error | undefined> = ref();
-const dummy: VNodeRef = ref();
+const dummy: Ref<HTMLElement | null> = ref(null);
 
 const sendMessage = async () => {
     if (message.value) {
@@ -69,12 +62,14 @@ onBeforeUnmount(() => {
 });
 
 const scrollToBottom = () => {
-    if (dummy.value) {
-        dummy.value.scrollIntoView({ behavior: 'smooth' });
-    }
+    dummy.value?.scrollIntoView({ behavior: 'smooth' })
 };
 
-scrollToBottom();
+watch(chat, () => {
+    nextTick(() => {
+        scrollToBottom();
+    });
+}, { deep: true });
 </script>
 
 <template>
@@ -89,7 +84,7 @@ scrollToBottom();
             <template v-else>
                 <Message v-for="message in chat" :key="message.id" :message="message" />
             </template>
-            <div :ref="dummy"></div>
+            <div ref="dummy"></div>
         </div>
 
         <div class="flex h-12 shrink-0 content-center items-center bg-gray-50 px-4 dark:bg-bunker-1000">
@@ -105,5 +100,3 @@ scrollToBottom();
         </div>
     </div>
 </template>
-
-../types/Message
