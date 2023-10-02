@@ -14,6 +14,11 @@ const router = createRouter({
                     name: "chat",
                     component: () => import("../views/ChatView.vue"),
                 },
+                {
+                    path: "schedule",
+                    name: "schedule",
+                    component: () => import("../views/ScheduleView.vue"),
+                },
             ],
         },
         {
