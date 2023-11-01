@@ -19,6 +19,11 @@ const router = createRouter({
                     name: "schedule",
                     component: () => import("../views/ScheduleView.vue"),
                 },
+                {
+                    path: "directory",
+                    name: "directory",
+                    component: () => import("../views/DirectoryView.vue"),
+                }
             ],
         },
         {

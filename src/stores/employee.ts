@@ -19,6 +19,8 @@ export const useEmployeeStore = defineStore("employee", () => {
         }
     }
 
+    fetchEmployees();
+
     return {
         employees,
         fetchEmployees,
