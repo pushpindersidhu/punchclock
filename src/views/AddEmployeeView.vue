@@ -3,6 +3,7 @@ import Input from '../components/common/Input.vue';
 import { Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { Icon } from '@iconify/vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -14,7 +15,7 @@ const phone = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const photo: Ref<File | null> = ref(null);
-const photoUrl = ref("https://via.placeholder.com/150");
+const photoUrl = ref("");
 
 const addEmployee = () => {
     if (!validate()) {
@@ -96,7 +97,8 @@ const handleChange = (event: Event) => {
             </h1>
 
             <label class="flex flex-col items-start mt-8 hover:cursor-pointer w-fit mx-auto">
-                <img :src="photoUrl" alt="placeholder" class="w-32 h-32 rounded-full object-cover" />
+                <img :src="photoUrl" alt="placeholder" class="w-32 h-32 rounded-full object-cover" v-if="photoUrl" />
+                <Icon icon="material-symbols:person" class="w-32 h-32 rounded-full bg-zinc-100 text-zinc-300 p-8" v-else />
                 <input v-on:change="handleChange" type="file" id="image" name="image" accept="image/png, image/jpeg"
                     class="my-0 bg-zinc-50 shadow-md hidden" />
             </label>

@@ -4,18 +4,6 @@ import { useEmployeeStore } from '../stores/employee';
 import { RouterLink } from 'vue-router';
 
 const employeeStore = useEmployeeStore();
-
-// const fetchUrl = 'https://randomuser.me/api/?results=10';
-
-// const employees = ref([]);
-
-// const fetchEmployees = async () => {
-//     const response = await fetch(fetchUrl);
-//     const data = await response.json();
-//     employees.value = data.results;
-// };
-// fetchEmployees();
-
 </script>
 
 <template>
@@ -29,7 +17,8 @@ const employeeStore = useEmployeeStore();
         </div>
         <div class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 lg:gap-8 gap-4 mt-8">
             <div v-for="emp in employeeStore.employees" class="bg-gray-100 p-8 flex flex-col items-center justify-center rounded-2xl">
-                <img :src="emp.photo" :alt="emp.name" class="w-40 h-40 rounded-full object-cover">
+                <img :src="emp.photo" :alt="emp.name" class="w-40 h-40 rounded-full object-cover" v-if="emp.photo">
+                <Icon icon="material-symbols:person" class="w-40 h-40 rounded-full bg-white text-zinc-200 p-8" v-else />
                 <p class="mt-4">
                     {{ emp.name }}
                 </p>

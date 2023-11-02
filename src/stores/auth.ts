@@ -66,8 +66,7 @@ export const useAuthStore = defineStore("auth", () => {
                 password
             );
 
-            let photoUrl =
-                "https://firebasestorage.googleapis.com/v0/b/punchclock-dev.appspot.com/o/profile%2FpMDpRPux3FPdWStroEBe4Igbd3I3?alt=media&token=95de603e-5a77-45c7-81c4-7f0b2e0918ea";
+            let photoUrl = "";
 
             if (photo) {
                 const storageRef = ref(
