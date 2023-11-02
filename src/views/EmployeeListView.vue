@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
-import { useEmployeeStore } from '../stores/employee';
+import { query, collection, onSnapshot } from 'firebase/firestore';
+import { Ref, ref, onBeforeUnmount } from 'vue';
 import { RouterLink } from 'vue-router';
+import { firebaseDb } from '../firebase';
 
-const employeeStore = useEmployeeStore();
+const employees: Ref<any[]> = ref([]);
+
+const q = query(collection(firebaseDb, "employees"));
+const unsubscribe = onSnapshot(q, (snapshot) => {
+    employees.value = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+});
+
+onBeforeUnmount(unsubscribe);
 </script>
 
 <template>
@@ -16,7 +28,7 @@ const employeeStore = useEmployeeStore();
             </RouterLink>
         </div>
         <div class="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 lg:gap-8 gap-4 mt-8">
-            <div v-for="emp in employeeStore.employees" class="bg-gray-100 p-8 flex flex-col items-center justify-center rounded-2xl">
+            <div v-for="emp in employees" class="bg-gray-100 p-8 flex flex-col items-center justify-center rounded-2xl">
                 <img :src="emp.photo" :alt="emp.name" class="w-40 h-40 rounded-full object-cover" v-if="emp.photo">
                 <Icon icon="material-symbols:person" class="w-40 h-40 rounded-full bg-white text-zinc-200 p-8" v-else />
                 <p class="mt-4">
