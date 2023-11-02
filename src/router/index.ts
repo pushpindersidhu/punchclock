@@ -25,9 +25,9 @@ const router = createRouter({
                     component: () => import("../views/ScheduleView.vue"),
                 },
                 {
-                    path: "directory",
-                    name: "directory",
-                    component: () => import("../views/DirectoryView.vue"),
+                    path: "employees",
+                    name: "employees",
+                    component: () => import("../views/EmployeesView.vue"),
                 },
             ],
         },

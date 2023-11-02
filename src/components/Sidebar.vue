@@ -9,6 +9,7 @@ import SidebarItem from './SidebarItem.vue';
         <SidebarItem icon="material-symbols:chat" tooltip="Chat" class="text-accent-500" link="/chat" />
         <SidebarItem icon="material-symbols:calendar-month-rounded" tooltip="Schedule" class="text-accent-500"
             link="/schedule" />
-        <SidebarItem icon="ic:round-people-alt" tooltip=" Directory" class="text-accent-500" link="/directory" />
+        <SidebarItem icon="ic:round-people-alt" tooltip="
+            Employees" class="text-accent-500" link="/employees" />
     </div>
 </template>
