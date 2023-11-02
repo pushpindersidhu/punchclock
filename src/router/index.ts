@@ -27,7 +27,21 @@ const router = createRouter({
                 {
                     path: "employees",
                     name: "employees",
-                    component: () => import("../views/EmployeesView.vue"),
+                    component: () => import("../views/EmployeeView.vue"),
+                    children: [
+                        {
+                            path: "",
+                            name: "employees-list",
+                            component: () =>
+                                import("../views/EmployeeListView.vue"),
+                        },
+                        {
+                            path: "add",
+                            name: "add-employee",
+                            component: () =>
+                                import("../views/AddEmployeeView.vue"),
+                        },
+                    ],
                 },
             ],
         },

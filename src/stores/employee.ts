@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { Ref, ref } from "vue";
 import { firebaseDb } from "../firebase";
-import { collection, getDocs, query } from "firebase/firestore";
+import { addDoc, collection, getDocs, query } from "firebase/firestore";
 
 export const useEmployeeStore = defineStore("employee", () => {
     const employees: Ref<any[]> = ref([]);
@@ -19,10 +19,22 @@ export const useEmployeeStore = defineStore("employee", () => {
         }
     }
 
+    async function addEmployee(employee: Employee) {
+        try {
+            const docRef = await addDoc(collection(firebaseDb, "employees"), {
+                ...employee,
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     fetchEmployees();
 
     return {
         employees,
         fetchEmployees,
+        addEmployee,
     };
 });
