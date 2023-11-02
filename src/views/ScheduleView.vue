@@ -151,15 +151,15 @@ const formattedWeekEnd = weekEnd.toLocaleDateString('en-US', {
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const colors = [
-    "blue",
-    "red",
-    "green",
-    "yellow",
-    "indigo",
-    "purple",
-    "pink",
-    "slate",
-    "sky",
+    "border-blue-500 bg-blue-100",
+    "border-red-500 bg-red-100",
+    "border-green-500 bg-green-100",
+    "border-yellow-500 bg-yellow-100",
+    "border-indigo-500 bg-indigo-100",
+    "border-purple-500 bg-purple-100",
+    "border-pink-500 bg-pink-100",
+    "border-slate-500 bg-slate-100",
+    "border-sky-500 bg-sky-100",
 ]
 </script>
 
@@ -201,15 +201,13 @@ const colors = [
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 <tr v-for="s, i in schedule" class="h-24">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                                        <span class="px-2 py-1 rounded-sm border-l-4 border-blue-500 bg-gray-50"
-                                            :class="'border-' + colors[i] + '-500' + ' bg-' + colors[i] + '-100'">
+                                        <span class="px-2 py-1 rounded-sm border-l-4" :class="colors[i]">
                                             {{ s.name }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center"
                                         v-for="d in s.schedule">
-                                        <span class="px-3 py-2 rounded-full text-md"
-                                            :class="'border-' + colors[i] + '-500' + ' bg-' + colors[i] + '-100'">
+                                        <span class="px-3 py-2 rounded-full text-md" :class="colors[i]">
                                             {{ d.open }} - {{ d.close }}
                                         </span>
                                     </td>
