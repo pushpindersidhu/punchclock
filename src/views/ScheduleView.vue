@@ -164,7 +164,7 @@ const colors = [
 </script>
 
 <template>
-    <div class="w-full p-8">
+    <div class="w-full p-8 overflow-x-scroll">
         <div class="flex flex-row h-16 items-center justify-cente w-full">
             <div class="dark:text-white font-bold text-sm mr-8">Schedule</div>
 
