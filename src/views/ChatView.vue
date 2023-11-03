@@ -21,7 +21,7 @@ const auth = useAuthStore();
 const user: User | null = auth.user;
 
 const chatRef = collection(firebaseDb, 'chat');
-const chatQuery = query(chatRef, orderBy('createdAt'), limitToLast(50));
+const chatQuery = query(chatRef, orderBy('createdAt'), limitToLast(15));
 
 const message: Ref<string> = ref('');
 const chat: Ref<MessageType[]> = ref([]);
