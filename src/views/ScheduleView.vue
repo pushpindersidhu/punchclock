@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
-import { useEmployeeStore } from '../stores/employee';
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { Ref, onMounted, ref } from 'vue';
+import { firebaseDb } from '../firebase';
 
 const date = new Date();
 
@@ -9,131 +11,42 @@ const weekEnd = new Date(date.setDate(date.getDate() - date.getDay() + 7));
 
 console.log(weekStart, weekEnd);
 
-const employees = useEmployeeStore();
-const schedule = [
-    {
-        name: 'Bob',
-        schedule: [
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Mon"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Tue"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Wed"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Thu"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Fri"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Sat"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Sun"
-            }
-        ]
-    },
-    {
-        name: 'Alice',
-        schedule: [
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Mon"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Tue"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Wed"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Thu"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Fri"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Sat"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Sun"
-            }
-        ]
-    },
-    {
-        name: 'John',
-        schedule: [
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Mon"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Tue"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Wed"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Thu"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Fri"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Sat"
-            },
-            {
-                "open": "08:00",
-                "close": "17:00",
-                "day": "Sun"
-            }
-        ]
-    },
-];
+const schedule: any = ref([]);
 
-employees.fetchEmployees();
+const employees: Ref<Employee[]> = ref([]);
+
+onMounted(async () => {
+    const empSnapshot = await getDocs(collection(firebaseDb, "employees"));
+    employees.value = empSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    } as Employee));
+
+    const q = query(collection(firebaseDb, "schedule"), where("start", ">=", weekStart), where("start", "<=", weekEnd), orderBy("start"));
+    const scheduleSnapshot = await getDocs(q);
+
+    const data = scheduleSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+
+    console.log(data);
+
+    employees.value.forEach((emp) => {
+        const empSchedule = data.filter((s) => s.uid === emp.uid);
+
+        schedule.value.push({
+            name: emp.name,
+            schedule: empSchedule.map((s) => ({
+                open: s.start.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                close: s.end.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                day: s.start.toDate().toLocaleDateString('en-US', { weekday: 'short' }),
+            })),
+        });
+    });
+
+    console.log(schedule.value);
+});
 
 const formattedWeekStart = weekStart.toLocaleDateString('en-US', {
     weekday: "short",
@@ -172,7 +85,7 @@ const colors = [
                 class="dark:text-white flex flex-row items-center justify-center p-3 bg-zinc-200/50 dark:bg-zinc-900/50 rounded-lg">
                 <Icon icon="material-symbols:arrow-back-ios-new-rounded"
                     class="w-4 h-4 cursor-pointer hover:text-accent-500" />
-                <span class="text-sm font-semibold text-accent-400 mx-4 flex flex-row items-center justify-center">{{
+                <span class="text-sm font-semibold text-accent-500 mx-4 flex flex-row items-center justify-center">{{
                     formattedWeekStart }} - {{ formattedWeekEnd }}
                     <Icon icon="mdi:calendar-month" class="w-4 h-4 ml-2" />
                 </span>
@@ -205,11 +118,12 @@ const colors = [
                                             {{ s.name }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center"
+                                    <td class="p-4 whitespace-nowrap text-sm text-gray-800 text-center"
                                         v-for="d in s.schedule">
-                                        <span class="px-3 py-2 rounded-full text-md" :class="colors[i]">
-                                            {{ d.open }} - {{ d.close }}
-                                        </span>
+                                        <div class="px-1 py-1 rounded-r text-md border-l-2" :class="colors[i]">
+                                            <div class="font-normal">{{ d.open }}</div>
+                                            <div class="font-normal">{{ d.close }}</div>
+                                        </div>
                                     </td>
                                 </tr>
 
@@ -219,83 +133,5 @@ const colors = [
                 </div>
             </div>
         </div>
-        <!-- <table class="h-auto w-full table-fixed border-[1px] border-collapse rounded-md">
-            <thead class="h-16 bg-gray-100">
-                <tr>
-                    <th
-                        class="text-zinc-900 dark:text-zinc-300 text-center font-semibold text-sm rounded-md py-2 border-[1px]">
-                        Employees
-                    </th>
-                    <th class="text-zinc-900 dark:text-zinc-300 text-center font-semibold text-sm rounded-md py-2 border-[1px]"
-                        v-for="day in weekdays" :key="day">
-                        {{ day }}
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr v-for="s in schedule" class="h-16 my-4">
-                    <td
-                        class="text-zinc-900 dark:text-zinc-300 text-center font-semibold text-sm rounded-md py-2 border-[1px]">
-                        {{ s.name }}
-                    </td>
-                    <td class="text-zinc-900 dark:text-zinc-300 text-center font-semibold text-sm rounded-md py-2 border-[1px]"
-                        v-for="i in s.schedule">
-                        {{ i.open }} - {{ i.close }}
-                    </td>
-                </tr>
-            </tbody>
-        </table> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <!-- <div class="h-full w-full flex flex-row overflow-auto">
-
-            <div class="flex flex-col grow p-1 gap-2">
-                <div class="text-zinc-900 dark:text-zinc-300 flex justify-start font-semibold text-sm rounded-md py-2">
-                    Members
-                </div>
-                <div class="text-white flex items-center justify-start h-16 font-semibold text-sm" v-for="e in employees">
-                    <Icon icon="clarity:employee-solid" class="w-6 h-6 mr-3 rounded-full" />
-                    {{ e }}
-                </div>
-            </div>
-
-            <div class="flex flex-col grow p-1 gap-2" v-for="d in data">
-                <div class="text-zinc-900 dark:text-zinc-300 flex justify-center font-semibold text-sm rounded-md py-2">
-                    <div class="text-3xl font-normal text-zinc-50">{{ d.date }}</div>
-                    <div class="flex flex-col text-xs font-normal items-start justify-center ml-3 text-zinc-300">
-                        Oct
-                        <div>
-                            {{ d.weekday }}
-                        </div>
-                    </div>
-                </div>
-                <div class="text-white flex flex-col items-center justify-center h-16 text-sm font-semibold bg-zinc-900/75 rounded-md"
-                    v-for="e in d.employees">
-                    {{ e.name }}
-                    <div class="text-xs font-normal dark:text-zinc-200">
-                        {{ e.schedule.start }} -
-                        {{ e.schedule.end }}
-                    </div>
-                </div>
-            </div>
-
-        </div> -->
     </div>
 </template>
