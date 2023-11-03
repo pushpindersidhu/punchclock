@@ -1,15 +1,29 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
-import { Ref, onMounted, ref } from 'vue';
+import { Ref, onMounted, ref, watch } from 'vue';
 import { firebaseDb } from '../firebase';
 
 const date = new Date();
 
-const weekStart = new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)));
-const weekEnd = new Date(date.setDate(date.getDate() - date.getDay() + 7));
+const week: Ref<{ start: Date, end: Date }> = ref({
+    start: new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1))),
+    end: new Date(date.setDate(date.getDate() - date.getDay() + 7))
+});
 
-console.log(weekStart, weekEnd);
+const nextWeek = () => {
+    week.value = {
+        start: new Date(week.value.start.setDate(week.value.start.getDate() + 7)),
+        end: new Date(week.value.end.setDate(week.value.end.getDate() + 7))
+    };
+}
+
+const prevWeek = () => {
+    week.value = {
+        start: new Date(week.value.start.setDate(week.value.start.getDate() - 7)),
+        end: new Date(week.value.end.setDate(week.value.end.getDate() - 7))
+    };
+}
 
 const schedule: any = ref([]);
 
@@ -21,44 +35,31 @@ onMounted(async () => {
         id: doc.id,
         ...doc.data(),
     } as Employee));
+})
 
-    const q = query(collection(firebaseDb, "schedule"), where("start", ">=", weekStart), where("start", "<=", weekEnd), orderBy("start"));
-    const scheduleSnapshot = await getDocs(q);
+watch([week, employees],
+    async () => {
+        const q = query(collection(firebaseDb, "schedule"), where("start", ">=", week.value.start), where("start", "<=", week.value.end), orderBy("start"));
+        const scheduleSnapshot = await getDocs(q);
 
-    const data = scheduleSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-    }));
+        const data = scheduleSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
 
-    console.log(data);
-
-    employees.value.forEach((emp) => {
-        const empSchedule = data.filter((s) => s.uid === emp.uid);
-
-        schedule.value.push({
-            name: emp.name,
-            schedule: empSchedule.map((s) => ({
-                open: s.start.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-                close: s.end.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-                day: s.start.toDate().toLocaleDateString('en-US', { weekday: 'short' }),
-            })),
+        schedule.value = [];
+        employees.value.forEach((emp) => {
+            const empSchedule = data.filter((s) => s.uid === emp.uid);
+            schedule.value.push({
+                name: emp.name,
+                schedule: empSchedule.map((s) => ({
+                    open: s.start.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                    close: s.end.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                    day: s.start.toDate().toLocaleDateString('en-US', { weekday: 'short' }),
+                })),
+            });
         });
-    });
-
-    console.log(schedule.value);
-});
-
-const formattedWeekStart = weekStart.toLocaleDateString('en-US', {
-    weekday: "short",
-    day: 'numeric',
-    month: 'short',
-});
-
-const formattedWeekEnd = weekEnd.toLocaleDateString('en-US', {
-    weekday: "short",
-    day: 'numeric',
-    month: 'short',
-});
+    }, { immediate: true, deep: true });
 
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -84,13 +85,24 @@ const colors = [
             <div
                 class="dark:text-white flex flex-row items-center justify-center p-3 bg-zinc-200/50 dark:bg-zinc-900/50 rounded-lg">
                 <Icon icon="material-symbols:arrow-back-ios-new-rounded"
-                    class="w-4 h-4 cursor-pointer hover:text-accent-500" />
-                <span class="text-sm font-semibold text-accent-500 mx-4 flex flex-row items-center justify-center">{{
-                    formattedWeekStart }} - {{ formattedWeekEnd }}
+                    class="w-4 h-4 cursor-pointer hover:text-accent-500" @click="prevWeek" />
+                <span class="text-sm font-semibold text-accent-500 mx-4 flex flex-row items-center justify-center">
+                    {{
+                        week.start.toLocaleDateString('en-US', {
+                            weekday: "short",
+                            day: 'numeric',
+                            month: 'short',
+                        }) }}
+                    -
+                    {{ week.end.toLocaleDateString('en-US', {
+                        weekday: "short",
+                        day: 'numeric',
+                        month: 'short',
+                    }) }}
                     <Icon icon="mdi:calendar-month" class="w-4 h-4 ml-2" />
                 </span>
-                <Icon icon="material-symbols:arrow-forward-ios-rounded"
-                    class="w-4 h-4 cursor-pointer hover:text-accent-500" />
+                <Icon icon="material-symbols:arrow-forward-ios-rounded" class="w-4 h-4 cursor-pointer hover:text-accent-500"
+                    @click="nextWeek" />
             </div>
         </div>
 
