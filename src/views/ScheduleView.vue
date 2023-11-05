@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
-import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { Ref, onMounted, ref, watch } from 'vue';
 import { firebaseDb } from '../firebase';
+import ScheduleModal from '../components/ScheduleModal.vue';
 
 const date = new Date();
 
@@ -52,9 +53,11 @@ watch([week, employees],
             const empSchedule = data.filter((s) => s.uid === emp.uid);
             schedule.value.push({
                 name: emp.name,
+                uid: emp.uid,
                 schedule: empSchedule.map((s) => ({
-                    open: s.start.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-                    close: s.end.toDate().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                    id: s.id,
+                    start: s.start.toDate(),
+                    end: s.end.toDate(),
                     day: s.start.toDate().toLocaleDateString('en-US', { weekday: 'short' }),
                 })),
             });
@@ -75,13 +78,57 @@ const colors = [
     "border-slate-500 bg-slate-100",
     "border-sky-500 bg-sky-100",
 ]
+
+const selectedSchedule: Ref<{
+    id: string,
+    uid: string,
+    name: string,
+    start: Date,
+    end: Date,
+} | null> = ref(null);
+
+const openModal = (schedule: any) => {
+    selectedSchedule.value = schedule;
+}
+
+const saveSchedule = async () => {
+    if (!selectedSchedule.value) return;
+
+    const docRef = doc(firebaseDb, "schedule", selectedSchedule.value.id);
+    await updateDoc(docRef, {
+        start: selectedSchedule.value.start,
+        end: selectedSchedule.value.end,
+    });
+
+    console.log("Document updated with ID: ", docRef.id);
+    selectedSchedule.value = null;
+}
+
+const onStartChange = (e: Event) => {
+    if (!selectedSchedule.value) return;
+
+    const target = e.target as HTMLInputElement;
+
+    selectedSchedule.value.start = new Date(`${week.value.start.toISOString().substring(0, 10)}T${target.value}:00`);
+}
+
+const onEndChange = (e: Event) => {
+    if (!selectedSchedule.value) return;
+
+    const target = e.target as HTMLInputElement;
+
+    selectedSchedule.value.end = new Date(`${week.value.start.toISOString().substring(0, 10)}T${target.value}:00`);
+}
+
+
 </script>
 
 <template>
     <div class="w-full p-8 overflow-x-scroll">
+        <ScheduleModal v-if="selectedSchedule" :schedule="selectedSchedule" @close="selectedSchedule = null"
+            @save="saveSchedule" :onStartChange="onStartChange" :onEndChange="onEndChange" />
         <div class="flex flex-row h-16 items-center justify-cente w-full">
             <div class="dark:text-white font-bold text-sm mr-8">Schedule</div>
-
             <div
                 class="dark:text-white flex flex-row items-center justify-center p-3 bg-zinc-200/50 dark:bg-zinc-900/50 rounded-lg">
                 <Icon icon="material-symbols:arrow-back-ios-new-rounded"
@@ -132,9 +179,16 @@ const colors = [
                                     </td>
                                     <td class="p-4 whitespace-nowrap text-sm text-gray-800 text-center"
                                         v-for="d in s.schedule">
-                                        <div class="px-1 py-1 rounded-r text-md border-l-2" :class="colors[i]">
-                                            <div class="font-normal">{{ d.open }}</div>
-                                            <div class="font-normal">{{ d.close }}</div>
+                                        <div class="px-1 py-1 rounded-r text-md border-l-2 cursor-pointer hover:scale-105 transition"
+                                            :class="colors[i]" @click="openModal({ ...d, uid: s.uid, name: s.name })">
+                                            <div class="font-normal">{{ d.start.toLocaleTimeString('en-US', {
+                                                hour:
+                                                    '2-digit', minute: '2-digit'
+                                            }) }}</div>
+                                            <div class="font-normal">{{ d.end.toLocaleTimeString('en-US', {
+                                                hour:
+                                                    '2-digit', minute: '2-digit'
+                                            }) }}</div>
                                         </div>
                                     </td>
                                 </tr>
