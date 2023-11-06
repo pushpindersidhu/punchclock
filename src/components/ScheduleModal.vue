@@ -57,12 +57,12 @@ defineProps({
 
             <div class="flex flex-row items-center justify-center w-full mt-8">
                 <button
-                    class="m-2 px-4 py-2 rounded-md dark:border-zinc-800 bg-red-500 text-white font-semibold hover:bg-red-600 w-full"
+                    class="m-2 px-4 py-3 rounded-md dark:border-zinc-800 bg-red-500 text-white font-normal text-md hover:bg-red-600 w-full"
                     @click="$emit('close')">
                     Cancel
                 </button>
                 <button
-                    class="m-2 px-4 py-2 rounded-md dark:border-zinc-800 bg-green-500 text-white font-semibold hover:bg-green-600 w-full"
+                    class="m-2 px-4 py-3 rounded-md dark:border-zinc-800 bg-green-500 text-white font-normal text-md hover:bg-green-600 w-full"
                     @click="$emit('save')">
                     Save
                 </button>
