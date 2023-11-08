@@ -92,49 +92,52 @@ const handleChange = (event: Event) => {
 <template>
     <div class="w-full h-full p-8 sm:p-4 overflow-scroll flex items-center justify-center">
         <div class="max-w-2xl md:p-8 rounded-lg w-full">
-            <h1 class="text-lg font-semibold text-gray-700 text-center mt-8">
+            <h1 class="text-lg font-semibold text-gray-700 dark:text-zinc-400 text-center mt-8">
                 Add Employee
             </h1>
 
             <label class="flex flex-col items-start mt-8 hover:cursor-pointer w-fit mx-auto">
                 <img :src="photoUrl" alt="placeholder" class="w-32 h-32 rounded-full object-cover" v-if="photoUrl" />
-                <Icon icon="material-symbols:person" class="w-32 h-32 rounded-full bg-zinc-100 text-zinc-300 p-8" v-else />
+                <Icon icon="material-symbols:person"
+                    class="w-32 h-32 rounded-full bg-zinc-100 text-zinc-300 dark:bg-zinc-900 dark:text-zinc-800 p-8"
+                    v-else />
                 <input v-on:change="handleChange" type="file" id="image" name="image" accept="image/png, image/jpeg"
-                    class="my-0 bg-zinc-50 shadow-md hidden" />
+                    class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md hidden" />
             </label>
             <div class="w-full flex lg:flex-row flex-col">
                 <div class="flex flex-col items-start w-full lg:mr-2 mt-8">
-                    <label class="text-sm font-semibold my-1" for="name">Full Name</label>
+                    <label class="text-sm font-semibold my-1 dark:text-zinc-100" for="name">Full Name</label>
                     <Input v-model:value="name" id="name" type="text" placeholder="Full Name"
-                        class="my-0 bg-zinc-50 shadow-md" />
+                        class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md" />
                 </div>
                 <div class="flex flex-col items-start w-full lg:ml-2 mt-8">
-                    <label class="text-sm font-semibold my-1" for="username">Username</label>
+                    <label class="text-sm font-semibold my-1 dark:text-zinc-100" for="username">Username</label>
                     <Input v-model:value="username" id="username" type="username" placeholder="Username"
-                        class="my-0 bg-zinc-50 shadow-md" />
+                        class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md" />
                 </div>
             </div>
             <div class="flex flex-col items-start w-full mt-8">
-                <label class="text-sm font-semibold my-1" for="email">Email</label>
+                <label class="text-sm font-semibold my-1 dark:text-zinc-100" for="email">Email</label>
                 <Input v-model:value="email" id="email" type="email" placeholder="Email"
-                    class="my-0 bg-zinc-50 shadow-md" />
+                    class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md" />
             </div>
             <div class="flex flex-col items-start w-full mt-8">
-                <label class="text-sm font-semibold my-1" for="phone">Phone</label>
+                <label class="text-sm font-semibold my-1 dark:text-zinc-100" for="phone">Phone</label>
                 <Input v-model:value="phone" id="phone" type="number" placeholder="Phone"
-                    class="my-0 bg-zinc-50 shadow-md" />
+                    class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md" />
             </div>
 
             <div class="w-full flex lg:flex-row flex-col mt-0">
                 <div class="flex flex-col items-start w-full lfmr-2 lg:mr-2 mt-8">
-                    <label class="text-sm font-semibold my-1" for="password">Password</label>
+                    <label class="text-sm font-semibold my-1 dark:text-zinc-100" for="password">Password</label>
                     <Input v-model:value="password" id="password" type="password" placeholder="Password"
-                        class="my-0 bg-zinc-50 shadow-md" />
+                        class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md" />
                 </div>
                 <div class="flex flex-col items-start w-full lg:ml-2 mt-8">
-                    <label class="text-sm font-semibold my-1" for="confirmPassword">Confirm Password</label>
+                    <label class="text-sm font-semibold my-1 dark:text-zinc-100" for="confirmPassword">Confirm
+                        Password</label>
                     <Input v-model:value="confirmPassword" id="confirmPassword" type="password"
-                        placeholder="Confirm Password" class="my-0 bg-zinc-50 shadow-md" />
+                        placeholder="Confirm Password" class="my-0 bg-zinc-50 dark:bg-zinc-800 shadow-md" />
                 </div>
             </div>
 
