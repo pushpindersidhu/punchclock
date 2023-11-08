@@ -4,7 +4,7 @@ import { addDoc, collection, doc, getDocs, onSnapshot, orderBy, query, updateDoc
 import { Ref, onMounted, ref, watch } from 'vue';
 import { firebaseDb } from '../firebase';
 import ScheduleModal from '../components/ScheduleModal.vue';
-import Sch from '../types/Sch';
+import FirebaseSchedule from '../types/FirebaseSchedule';
 
 const date = new Date();
 
@@ -54,10 +54,10 @@ watch([week, employees],
     async () => {
         const q = query(collection(firebaseDb, "schedule"), where("start", ">=", week.value.start), where("start", "<=", week.value.end), orderBy("start"));
         const unsubscribe = onSnapshot(q, (scheduleSnapshot) => {
-            const data: Sch[] = scheduleSnapshot.docs.map((doc) => ({
+            const data: FirebaseSchedule[] = scheduleSnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
-            }) as Sch);
+            }) as FirebaseSchedule);
 
             schedule.value = [];
             employees.value.forEach((emp) => {
