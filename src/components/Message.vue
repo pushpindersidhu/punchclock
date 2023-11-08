@@ -32,19 +32,20 @@ if (timestamp === today) {
 </script>
 
 <template>
-    <div class="flex flex-row w-full my-2">
-        <Icon icon="mdi:account-circle"
-            class="w-10 h-10 text-zinc-500 rounded-full bg-zinc-100 dark:text-zinc-400" />
+    <div class="flex flex-row w-full m-4">
+        <Icon icon="material-symbols:person"
+            class="w-10 h-10 text-zinc-500 rounded-full bg-zinc-100 dark:text-zinc-600 dark:bg-zinc-800 p-2" />
         <div class="flex flex-col mx-2">
             <div class="flex flex-row items-center">
                 <span class="text-sm font-semibold text-zinc-700 dark:text-gray-200 hover:text-accent-500 cursor-pointer">
-                    {{ "Sidhu" }}
+                    {{ message.uid }}
                 </span>
-                <span class="mx-2 text-xs text-zinc-500 dark:text-gray-400">
-                    {{ timestamp }}
+                <span class="mx-2 text-xs text-zinc-500 dark:text-gray-400 ">
+                    {{ timestamp || "Just now" }}
                 </span>
             </div>
-            <p class="text-sm text-gray-700 dark:text-gray-200 bg-gray-100 w-fit rounded-xl rounded-tl-none p-2">
+            <p
+                class="mt-1 text-sm text-gray-700 dark:text-gray-200 bg-gray-100 w-fit rounded-xl rounded-tl-none p-2 dark:bg-zinc-800">
                 {{ message.text }}
             </p>
         </div>

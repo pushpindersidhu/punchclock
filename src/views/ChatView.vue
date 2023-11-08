@@ -13,15 +13,12 @@ import { Icon } from "@iconify/vue";
 import Input from '../components/common/Input.vue';
 import { firebaseDb } from '../firebase';
 import { useAuthStore } from '../stores/auth';
-import { User } from 'firebase/auth';
 import Message from "../components/Message.vue"
 import MessageType from '../types/Message';
 const auth = useAuthStore();
 
-const user: User | null = auth.user;
-
 const chatRef = collection(firebaseDb, 'chat');
-const chatQuery = query(chatRef, orderBy('createdAt'), limitToLast(20));
+const chatQuery = query(chatRef, orderBy('createdAt'), limitToLast(50));
 
 const message: Ref<string> = ref('');
 const chat: Ref<MessageType[]> = ref([]);
@@ -30,9 +27,14 @@ const error: Ref<Error | undefined> = ref();
 const dummy: Ref<HTMLElement | null> = ref(null);
 
 const sendMessage = async () => {
+    if (!auth.user) {
+        alert('You must be logged in to send a message');
+        return;
+    }
+
     if (message.value) {
         await addDoc(chatRef, {
-            uid: user?.uid,
+            uid: auth.user.uid,
             text: message.value,
             createdAt: serverTimestamp(),
         });
@@ -87,12 +89,12 @@ watch(chat, () => {
             <div ref="dummy"></div>
         </div>
 
-        <div class="flex h-12 shrink-0 content-center items-center bg-gray-50 px-4 dark:bg-bunker-1000">
+        <div class="flex h-12 shrink-0 content-center items-center bg-gray-50 px-4 dark:bg-zinc-950">
             <div class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center text-accent-400">
                 <Icon icon="bi:emoji-heart-eyes-fill" />
             </div>
             <Input v-model:value="message" @keydown.enter="sendMessage" placeholder="Type a message..."
-                class="h-full w-full cursor-text bg-transparent px-4 text-sm font-normal text-bunker-800 placeholder-bunker-500 outline-none selection:bg-gray-300 dark:text-gray-100 dark:placeholder-gray-500 dark:selection:bg-bunker-700" />
+                class="h-full w-full cursor-text bg-transparent px-4 text-sm font-normal text-zinc-800 placeholder-zinc-500 outline-none selection:bg-gray-300 dark:text-gray-100 dark:placeholder-gray-500 dark:selection:bg-zinc-700" />
             <div @click="sendMessage"
                 class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center text-accent-400">
                 <Icon icon="material-symbols:send-rounded" />
