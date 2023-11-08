@@ -111,7 +111,9 @@ const selectedSchedule: Ref<{
 const openModal = (schedule: any) => {
     if (!schedule.start) {
         schedule.start = schedule.date;
+        schedule.start.setHours(9, 0, 0, 0);
         schedule.end = schedule.date;
+        schedule.end.setHours(17, 0, 0, 0);
     }
     selectedSchedule.value = schedule;
 }
@@ -119,6 +121,9 @@ const openModal = (schedule: any) => {
 const saveSchedule = async () => {
     if (!selectedSchedule.value) return;
 
+    selectedSchedule.value.start.setFullYear(selectedSchedule.value.date.getFullYear(), selectedSchedule.value.date.getMonth(), selectedSchedule.value.date.getDate());
+    selectedSchedule.value.end.setFullYear(selectedSchedule.value.date.getFullYear(), selectedSchedule.value.date.getMonth(), selectedSchedule.value.date.getDate());
+    
     if (selectedSchedule.value.start > selectedSchedule.value.end) return alert("Start time cannot be after end time");
 
     if (!selectedSchedule.value.id) {
