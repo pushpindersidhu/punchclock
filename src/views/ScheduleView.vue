@@ -26,6 +26,17 @@ const prevWeek = () => {
     };
 }
 
+const dates: Ref<Date[]> = ref([]);
+
+watch(week, () => {
+    dates.value = [];
+    const date = new Date(week.value.start);
+    while (date <= week.value.end) {
+        dates.value.push(new Date(date));
+        date.setDate(date.getDate() + 1);
+    }
+}, { immediate: true, deep: true });
+
 const schedule: any = ref([]);
 
 const employees: Ref<Employee[]> = ref([]);
@@ -50,33 +61,35 @@ watch([week, employees],
 
         schedule.value = [];
         employees.value.forEach((emp) => {
-            const empSchedule = data.filter((s) => s.uid === emp.uid);
+            const empSchedule = data.filter((s) => s.uid === emp.uid).sort((a, b) => a.start.toDate().getTime() - b.start.toDate().getTime());
             schedule.value.push({
                 name: emp.name,
                 uid: emp.uid,
-                schedule: empSchedule.map((s) => ({
-                    id: s.id,
-                    start: s.start.toDate(),
-                    end: s.end.toDate(),
-                    day: s.start.toDate().toLocaleDateString('en-US', { weekday: 'short' }),
-                })),
+                schedule: dates.value.map((d) => {
+                    const s = empSchedule.find((s) => s.start.toDate().getDate() === d.getDate());
+                    return s ? {
+                        id: s?.id,
+                        uid: s?.uid,
+                        name: s?.name,
+                        start: s?.start.toDate(),
+                        end: s?.end.toDate(),
+                    } : null;
+                })
             });
         });
     }, { immediate: true, deep: true });
 
 
-const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
 const colors = [
-    "border-blue-500 bg-blue-100",
-    "border-red-500 bg-red-100",
-    "border-green-500 bg-green-100",
-    "border-yellow-500 bg-yellow-100",
-    "border-indigo-500 bg-indigo-100",
-    "border-purple-500 bg-purple-100",
-    "border-pink-500 bg-pink-100",
-    "border-slate-500 bg-slate-100",
-    "border-sky-500 bg-sky-100",
+    "border-blue-500 bg-blue-50",
+    "border-red-500 bg-red-50",
+    "border-green-500 bg-green-50",
+    "border-yellow-500 bg-yellow-50",
+    "border-pink-500 bg-pink-50",
+    "border-indigo-500 bg-indigo-50",
+    "border-purple-500 bg-purple-50",
+    "border-slate-500 bg-slate-50",
+    "border-sky-500 bg-sky-50",
 ]
 
 const selectedSchedule: Ref<{
@@ -158,7 +171,7 @@ const onEndChange = (e: Event) => {
                 <div class="p-1.5 min-w-full inline-block align-middle">
                     <div class="border rounded-lg overflow-hidden dark:border-gray-700">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-zinc-100 dark:bg-zinc-900 h-16">
+                            <thead class="bg-zinc-50 dark:bg-zinc-900 h-16">
                                 <tr>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
@@ -166,38 +179,55 @@ const onEndChange = (e: Event) => {
                                     <th scope="col"
                                         class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400"
                                         v-for="
-                                        day in weekdays" :key="day">
-                                        {{ day }}</th>
+                                        date in dates" :key="date.getDate()">
+                                        <div class="flex flex-row items-center justify-center">
+                                            <div class="text-3xl font-normal">
+                                                {{ date.getDate() }}
+                                            </div>
+
+                                            <div class="flex flex-col items-center justify-center ml-2">
+                                                <div class="text-xs font-semibold">
+                                                    {{ date.toLocaleDateString('en-US', { month: 'short' }) }}
+                                                </div>
+                                                <div class="text-xs font-semibold">
+                                                    {{ date.toLocaleDateString('en-US', { weekday: 'short' }) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <tr v-for="s, i in schedule" class="h-24">
+                                <tr v-for="empSchedule, i in schedule" class="h-24">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
                                         <span class="px-2 py-1 rounded-sm border-l-4" :class="colors[i]">
-                                            {{ s.name }}
+                                            {{ empSchedule.name }}
                                         </span>
                                     </td>
                                     <td class="p-4 whitespace-nowrap text-sm text-gray-800 text-center"
-                                        v-for="d in s.schedule">
-                                        <div class="px-1 py-1 rounded-r text-md border-l-2 cursor-pointer hover:scale-105 transition"
-                                            :class="colors[i]" @click="openModal({ ...d, uid: s.uid, name: s.name })">
-                                            <div class="font-normal">{{ d.start.toLocaleTimeString('en-US', {
-                                                hour:
-                                                    '2-digit', minute: '2-digit'
-                                            }) }}</div>
-                                            <div class="font-normal">{{ d.end.toLocaleTimeString('en-US', {
-                                                hour:
-                                                    '2-digit', minute: '2-digit'
-                                            }) }}</div>
+                                        v-for="daySchedule in empSchedule.schedule">
+                                        <div class="px-1 py-1 rounded-r text-md border-l-2 cursor-pointer hover:scale-105 transition dark:bg-opacity-10 dark:text-zinc-300 h-12 flex items-center justify-center flex-col"
+                                            :class="colors[i]"
+                                            @click="openModal({ ...daySchedule, uid: empSchedule.uid, name: empSchedule.name })">
+                                            <div class="font-normal" v-if="daySchedule">{{
+                                                daySchedule.start.toLocaleTimeString('en-US', {
+                                                    hour:
+                                                        '2-digit', minute: '2-digit'
+                                                }) }}</div>
+                                            <div class="font-normal" v-if="daySchedule">{{
+                                                daySchedule.end.toLocaleTimeString('en-US', {
+                                                    hour:
+                                                        '2-digit', minute: '2-digit'
+                                                }) }}</div>
+
+                                            <div v-else>Off</div>
                                         </div>
                                     </td>
                                 </tr>
-
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</template>
+</div></template>
