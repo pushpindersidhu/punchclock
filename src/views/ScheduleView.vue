@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
-import { collection, doc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, onSnapshot, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { Ref, onMounted, ref, watch } from 'vue';
 import { firebaseDb } from '../firebase';
 import ScheduleModal from '../components/ScheduleModal.vue';
@@ -52,32 +52,38 @@ onMounted(async () => {
 watch([week, employees],
     async () => {
         const q = query(collection(firebaseDb, "schedule"), where("start", ">=", week.value.start), where("start", "<=", week.value.end), orderBy("start"));
-        const scheduleSnapshot = await getDocs(q);
+        const unsubscribe = onSnapshot(q, (scheduleSnapshot) => {
+            const data = scheduleSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
 
-        const data = scheduleSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-
-        schedule.value = [];
-        employees.value.forEach((emp) => {
-            const empSchedule = data.filter((s) => s.uid === emp.uid).sort((a, b) => a.start.toDate().getTime() - b.start.toDate().getTime());
-            schedule.value.push({
-                name: emp.name,
-                uid: emp.uid,
-                schedule: dates.value.map((d) => {
-                    const s = empSchedule.find((s) => s.start.toDate().getDate() === d.getDate());
-                    return s ? {
-                        id: s?.id,
-                        uid: s?.uid,
-                        name: s?.name,
-                        start: s?.start.toDate(),
-                        end: s?.end.toDate(),
-                    } : null;
-                })
+            schedule.value = [];
+            employees.value.forEach((emp) => {
+                const empSchedule = data.filter((s) => s.uid === emp.uid).sort((a, b) => a.start.toDate().getTime() - b.start.toDate().getTime());
+                schedule.value.push({
+                    name: emp.name,
+                    uid: emp.uid,
+                    schedule: dates.value.map((d) => {
+                        const s = empSchedule.find((s) => s.start.toDate().getDate() === d.getDate());
+                        return {
+                            id: s?.id,
+                            uid: s?.uid,
+                            name: s?.name,
+                            date: d,
+                            start: s ? s.start.toDate() : null,
+                            end: s ? s.end.toDate() : null,
+                        };
+                    })
+                });
             });
+
+            console.log(schedule.value);
         });
-    }, { immediate: true, deep: true });
+
+        return () => unsubscribe();
+    },
+    { immediate: true, deep: true });
 
 
 const colors = [
@@ -96,24 +102,45 @@ const selectedSchedule: Ref<{
     id: string,
     uid: string,
     name: string,
+    date: Date,
     start: Date,
     end: Date,
 } | null> = ref(null);
 
 const openModal = (schedule: any) => {
+    if (!schedule.start) {
+        schedule.start = schedule.date;
+        schedule.end = schedule.date;
+    }
     selectedSchedule.value = schedule;
 }
 
 const saveSchedule = async () => {
     if (!selectedSchedule.value) return;
 
-    const docRef = doc(firebaseDb, "schedule", selectedSchedule.value.id);
-    await updateDoc(docRef, {
-        start: selectedSchedule.value.start,
-        end: selectedSchedule.value.end,
-    });
+    if (selectedSchedule.value.start > selectedSchedule.value.end) return alert("Start time cannot be after end time");
 
-    console.log("Document updated with ID: ", docRef.id);
+    if (!selectedSchedule.value.id) {
+        const docRef = await addDoc(collection(firebaseDb, "schedule"), {
+            uid: selectedSchedule.value.uid,
+            name: selectedSchedule.value.name,
+            start: selectedSchedule.value.start,
+            end: selectedSchedule.value.end,
+        });
+
+        console.log("Document created: ", docRef);
+    } else {
+        const docRef = doc(firebaseDb, "schedule", selectedSchedule.value.id);
+        console.log("start", selectedSchedule.value.start);
+        console.log("end", selectedSchedule.value.end);
+        await updateDoc(docRef, {
+            start: selectedSchedule.value.start,
+            end: selectedSchedule.value.end,
+        });
+
+        console.log("Document updated: ", docRef);
+    }
+
     selectedSchedule.value = null;
 }
 
@@ -209,12 +236,12 @@ const onEndChange = (e: Event) => {
                                         <div class="px-1 py-1 rounded-r text-md border-l-2 cursor-pointer hover:scale-105 transition dark:bg-opacity-10 dark:text-zinc-300 h-12 flex items-center justify-center flex-col"
                                             :class="colors[i]"
                                             @click="openModal({ ...daySchedule, uid: empSchedule.uid, name: empSchedule.name })">
-                                            <div class="font-normal" v-if="daySchedule">{{
+                                            <div class="font-normal" v-if="daySchedule.start">{{
                                                 daySchedule.start.toLocaleTimeString('en-US', {
                                                     hour:
                                                         '2-digit', minute: '2-digit'
                                                 }) }}</div>
-                                            <div class="font-normal" v-if="daySchedule">{{
+                                            <div class="font-normal" v-if="daySchedule.end">{{
                                                 daySchedule.end.toLocaleTimeString('en-US', {
                                                     hour:
                                                         '2-digit', minute: '2-digit'
@@ -230,4 +257,5 @@ const onEndChange = (e: Event) => {
                 </div>
             </div>
         </div>
-</div></template>
+    </div>
+</template>

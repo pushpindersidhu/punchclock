@@ -5,6 +5,7 @@ import { PropType } from 'vue';
 interface Schedule {
     id: string;
     uid: string;
+    date: Date;
     name: string;
     start: Date;
     end: Date;
@@ -36,7 +37,7 @@ defineProps({
 
             <div class="flex flex-row items-center justify-center m-2">
                 <span class="px-4 py-2 text-md font-semibold text-zinc-600">{{
-                    schedule.start.toLocaleDateString('en-US', {
+                    schedule.date.toLocaleDateString('en-US', {
                         weekday: "long",
                         day: 'numeric',
                         month: 'long',
@@ -45,13 +46,15 @@ defineProps({
             </div>
             <div class="flex flex-row items-center justify-center m-2">
                 <label class="w-12 text-md m-4 font-semibold text-gray-800 dark:text-zinc-100">Start</label>
-                <input type="time" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-800" :value="schedule.start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                <input type="time" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-800" :value="schedule.start ?
+                            schedule.start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                            : '00:00'
                         " @input="onStartChange" step="60" />
             </div>
             <div class="flex flex-row items-center justify-center m-2">
                 <label class="w-12 text-md m-4 font-semibold text-gray-800 dark:text-zinc-100">End</label>
                 <input type="time" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-800"
-                    :value="schedule.end.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })"
+                    :value="schedule.end ? schedule.end.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '00:00'"
                     @input="onEndChange" step="60" />
             </div>
 
