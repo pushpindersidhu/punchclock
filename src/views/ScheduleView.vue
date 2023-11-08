@@ -228,7 +228,8 @@ const onEndChange = (e: Event) => {
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 <tr v-for="empSchedule, i in schedule" class="h-24">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                                        <span class="px-2 py-1 rounded-sm border-l-4" :class="colors[i]">
+                                        <span class="px-2 py-1 rounded-sm border-l-4 dark:bg-opacity-10 dark:text-zinc-100"
+                                            :class="colors[i]">
                                             {{ empSchedule.name }}
                                         </span>
                                     </td>
