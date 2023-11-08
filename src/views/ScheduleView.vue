@@ -172,7 +172,7 @@ const onEndChange = (e: Event) => {
             <div
                 class="dark:text-white flex flex-row items-center justify-center p-3 bg-zinc-200/50 dark:bg-zinc-900/50 rounded-lg">
                 <Icon icon="material-symbols:arrow-back-ios-new-rounded"
-                    class="w-4 h-4 cursor-pointer hover:text-accent-500" @click="prevWeek" />
+                    class="w-4 h-4 cursor-pointer hover:text-accent-500 select-none" @click="prevWeek" />
                 <span class="text-sm font-semibold text-accent-500 mx-4 flex flex-row items-center justify-center">
                     {{
                         week.start.toLocaleDateString('en-US', {
@@ -188,7 +188,7 @@ const onEndChange = (e: Event) => {
                     }) }}
                     <Icon icon="mdi:calendar-month" class="w-4 h-4 ml-2" />
                 </span>
-                <Icon icon="material-symbols:arrow-forward-ios-rounded" class="w-4 h-4 cursor-pointer hover:text-accent-500"
+                <Icon icon="material-symbols:arrow-forward-ios-rounded" class="w-4 h-4 cursor-pointer hover:text-accent-500 select-none"
                     @click="nextWeek" />
             </div>
         </div>
