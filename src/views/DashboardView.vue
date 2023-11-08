@@ -34,8 +34,6 @@ const endOfToday = new Date();
 endOfToday.setDate(endOfToday.getDate() + 1);
 endOfToday.setHours(0, 0, 0);
 
-console.log(startOfToday, endOfToday);
-
 const q = query(collection(firebaseDb, 'schedule'), where('start', '>=', startOfToday), where('start', '<', endOfToday));
 const unsubscibeSchedule = onSnapshot(q, async (snapshot) => {
     const empSnapshot = await getDocs(collection(firebaseDb, "employees"));
@@ -55,8 +53,6 @@ const unsubscibeSchedule = onSnapshot(q, async (snapshot) => {
             photo: emp?.photo,
         };
     });
-
-    console.log(schedules.value);
 });
 
 onBeforeUnmount(() => {
@@ -106,64 +102,67 @@ const maxHours = Math.max(...Object.values(weeklyHours));
             </div>
         </div>
 
-        <div class="col-span-2 col-start-1 row-start-2 bg-white dark:bg-zinc-900 rounded-lg overflow-x-scroll">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="h-16">
-                    <tr>
-                        <th scope="col" class="w-24 px-6 py-4">
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
-                            Employee</th>
+        <div class="col-span-2 col-start-1 row-start-2 overflow-x-hidden">
+            <h3 class="text-md font-semibold text-zinc-600 dark:text-zinc-300 py-4">Today's Schedule</h3>
+            <div class="bg-white dark:bg-zinc-900 rounded-lg overflow-x-scroll">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="h-16">
+                        <tr>
+                            <th scope="col" class="w-24 px-6 py-4">
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
+                                Employee</th>
 
-                        <th scope="col"
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
-                            Start</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
-                            End</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
-                            Total Hours</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
-                            Status</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
+                                Start</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
+                                End</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
+                                Total Hours</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase dark:text-gray-400">
+                                Status</th>
 
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    <tr v-for="schedule in schedules" class="h-24">
-                        <td class="w-24 px-6 py-4">
-                            <img :src="schedule.photo" class="h-12 w-12 rounded-full" />
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-zinc-300">
-                            {{ schedule.name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
-                            {{ schedule.start.toDate().toLocaleTimeString('en-US', {
-                                hour: '2-digit', minute: '2-digit', hour12: true
-                            })
-                            }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
-                            {{ schedule.end.toDate().toLocaleTimeString('en-US', {
-                                hour: '2-digit', minute: '2-digit', hour12: true
-                            })
-                            }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
-                            {{ schedule.end.toDate().getHours() - schedule.start.toDate().getHours() }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="new Date() > schedule.start.toDate() && new Date() < schedule.end.toDate()
-                                ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                                {{ new Date() > schedule.start.toDate() && new Date() < schedule.end.toDate() ? 'Clocked In'
-                                    : 'Clocked Out' }} </span>
-                        </td>
-                    </tr>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr v-for="schedule in schedules" class="h-24">
+                            <td class="w-24 px-6 py-4">
+                                <img :src="schedule.photo" class="h-12 w-12 rounded-full" />
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-zinc-300">
+                                {{ schedule.name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
+                                {{ schedule.start.toDate().toLocaleTimeString('en-US', {
+                                    hour: '2-digit', minute: '2-digit', hour12: true
+                                })
+                                }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
+                                {{ schedule.end.toDate().toLocaleTimeString('en-US', {
+                                    hour: '2-digit', minute: '2-digit', hour12: true
+                                })
+                                }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
+                                {{ schedule.end.toDate().getHours() - schedule.start.toDate().getHours() }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center dark:text-zinc-300">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="new Date() > schedule.start.toDate() && new Date() < schedule.end.toDate()
+                                    ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                                    {{ new Date() > schedule.start.toDate() && new Date() < schedule.end.toDate()
+                                        ? 'Clocked In' : 'Clocked Out' }} </span>
+                            </td>
+                        </tr>
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="col-start-2 row-start-1 bg-white dark:bg-zinc-900 rounded-lg px-8 py-4 flex flex-col">
