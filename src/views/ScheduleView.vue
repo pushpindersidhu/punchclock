@@ -4,6 +4,7 @@ import { addDoc, collection, doc, getDocs, onSnapshot, orderBy, query, updateDoc
 import { Ref, onMounted, ref, watch } from 'vue';
 import { firebaseDb } from '../firebase';
 import ScheduleModal from '../components/ScheduleModal.vue';
+import Sch from '../types/Sch';
 
 const date = new Date();
 
@@ -53,10 +54,10 @@ watch([week, employees],
     async () => {
         const q = query(collection(firebaseDb, "schedule"), where("start", ">=", week.value.start), where("start", "<=", week.value.end), orderBy("start"));
         const unsubscribe = onSnapshot(q, (scheduleSnapshot) => {
-            const data = scheduleSnapshot.docs.map((doc) => ({
+            const data: Sch[] = scheduleSnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
-            }));
+            }) as Sch);
 
             schedule.value = [];
             employees.value.forEach((emp) => {
@@ -69,7 +70,7 @@ watch([week, employees],
                         return {
                             id: s?.id,
                             uid: s?.uid,
-                            name: s?.name,
+                            name: emp.name,
                             date: d,
                             start: s ? s.start.toDate() : null,
                             end: s ? s.end.toDate() : null,
@@ -188,8 +189,8 @@ const onEndChange = (e: Event) => {
                     }) }}
                     <Icon icon="mdi:calendar-month" class="w-4 h-4 ml-2" />
                 </span>
-                <Icon icon="material-symbols:arrow-forward-ios-rounded" class="w-4 h-4 cursor-pointer hover:text-accent-500 select-none"
-                    @click="nextWeek" />
+                <Icon icon="material-symbols:arrow-forward-ios-rounded"
+                    class="w-4 h-4 cursor-pointer hover:text-accent-500 select-none" @click="nextWeek" />
             </div>
         </div>
 
