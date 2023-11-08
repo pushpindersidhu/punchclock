@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Ref, onBeforeUnmount, ref } from 'vue';
 import { Icon } from '@iconify/vue';
-import { collection, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
-import FirebaseSchedule from '../types/FirebaseSchedule';
+import { collection, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 import { firebaseDb } from '../firebase';
 
 const time = ref(new Date());
