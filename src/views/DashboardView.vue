@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { Ref, onBeforeUnmount, ref } from 'vue';
+import { Ref, onBeforeUnmount, ref, watch } from 'vue';
 import { Icon } from '@iconify/vue';
 import { collection, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 import { firebaseDb } from '../firebase';
+import { useAuthStore } from '../stores/auth';
 
 const time = ref(new Date());
+
+const auth = useAuthStore();
 
 const interval = setInterval(() => {
     time.value = new Date();
@@ -59,18 +62,48 @@ onBeforeUnmount(() => {
     unsubscibeSchedule();
 });
 
-const weeklyHours = {
-    'Mon': 8,
-    'Tue': 8,
-    'Wed': 8,
-    'Thu': 8,
-    'Fri': 8,
-    'Sat': 0,
-    'Sun': 0,
-};
+const weeklyHours: Ref<{
+    [key: string]: number;
+}> = ref({
+    Mon: 0,
+    Tue: 0,
+    Wed: 0,
+    Thu: 0,
+    Fri: 0,
+    Sat: 0,
+    Sun: 0,
+});
 
-const maxHours = Math.max(...Object.values(weeklyHours));
+watch([auth], () => {
+    const user = auth.user;
+    if (user) {
+        const date = new Date();
+        const prevWeekstart = new Date(date.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)));
+        const prevWeekEnd = new Date(date.setDate(date.getDate() - date.getDay() + 7));
 
+        const prevWeekQuery = query(collection(firebaseDb, 'schedule'), where('start', '>=', prevWeekstart), where('start', '<',
+            prevWeekEnd));
+
+        getDocs(prevWeekQuery).then((snapshot) => {
+            snapshot.docs.forEach((doc) => {
+                if (doc.data().uid !== user.uid) {
+                    return;
+                }
+
+                if (!doc.data().start || !doc.data().end) {
+                    return;
+                }
+
+                const start = doc.data().start.toDate();
+                const end = doc.data().end.toDate();
+                const day = start.toLocaleDateString('en-US', { weekday: 'short' });
+                const hours = end.getHours() - start.getHours();
+
+                weeklyHours.value[day] = hours;
+            });
+        });
+    }
+}, { immediate: true });
 </script>
 
 <template>
@@ -170,7 +203,6 @@ const maxHours = Math.max(...Object.values(weeklyHours));
                 <h3 class="text-md font-semibold text-zinc-600 dark:text-zinc-300">Time Log</h3>
                 <div class="flex flex-row items-center justify-end">
                     <button class="text-zinc-500 dark:text-zinc-400 font-semibold text-sm py-2 px-2">
-                        Last Week
                     </button>
                 </div>
 
@@ -179,12 +211,12 @@ const maxHours = Math.max(...Object.values(weeklyHours));
             <div class="grow">
                 <div class="flex flex-col items-center w-full h-full bg-white dark:bg-zinc-900 py-4">
                     <div class="flex items-end flex-grow w-full mt-2 space-x-2 sm:space-x-3 h-32">
-                        <div class="relative flex flex-col items-center flex-grow pb-5 group"
+                        <div class="relative flex flex-col items-center flex-grow pb-5 group overflow-scroll"
                             v-for="hours, day in weeklyHours">
                             <span class="absolute top-0 hidden -mt-6 text-xs font-bold group-hover:block">{{ hours }}
                                 Hrs</span>
-                            <div class="relative flex justify-center w-6 bg-accent-500 rounded-md m-4"
-                                :style="{ height: `${hours / (maxHours + 4) * 150}px` }">
+                            <div class="relative flex justify-center w-6 lg:w-2 lg:m-2 bg-accent-500 rounded-md m-4"
+                                :style="{ height: `${hours / (Math.max(...Object.values(weeklyHours)) + 4) * 150}px` }">
                             </div>
                             <span class="absolute bottom-0 text-xs font-bold text-zinc-600 dark:text-zinc-300">{{ day
                             }}</span>
@@ -199,7 +231,7 @@ const maxHours = Math.max(...Object.values(weeklyHours));
                 </div>
 
                 <div class="text-md font-semibold text-accent-600 mr-2">
-                    40
+                    {{ Object.values(weeklyHours).reduce((a, b) => a + b, 0) }} Hrs
                 </div>
             </div>
         </div>
