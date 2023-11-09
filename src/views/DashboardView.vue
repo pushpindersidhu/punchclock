@@ -9,8 +9,39 @@ const time = ref(new Date());
 
 const auth = useAuthStore();
 
+const isClockedIn = ref(false);
+const clockedInAt: Ref<Date> = ref(new Date());
+
+const todayTime = ref({
+    hours: 0,
+    minutes: 0,
+});
+
+function clockIn() {
+    isClockedIn.value = true;
+    clockedInAt.value = new Date();
+}
+
+function clockOut() {
+    isClockedIn.value = false;
+}
+
 const interval = setInterval(() => {
     time.value = new Date();
+
+    if (!isClockedIn.value) {
+        return;
+    }
+
+    const date = new Date();
+    const hours = date.getHours() - clockedInAt.value.getHours();
+    const minutes = date.getMinutes() - clockedInAt.value.getMinutes();
+
+
+    todayTime.value = {
+        hours,
+        minutes,
+    };
 }, 1000);
 
 onBeforeUnmount(() => {
@@ -122,16 +153,23 @@ watch([auth], () => {
 
             <div class="flex flex-row items-center justify-evenly grow">
                 <button
-                    class="flex flex-col items-center justify-center bg-accent-500 hover:bg-accent-700 text-white font-semibold text-sm py-2 px-4 rounded-full w-32 h-32">
-                    <Icon icon="ic:baseline-alarm" class="w-8 h-8" />
-                    <span class="mt-2">Clock In</span>
+                    class="flex flex-row items-center justify-center bg-accent-500 hover:bg-accent-700 text-white font-semibold text-sm py-2 px-4 rounded-full w-40"
+                    @click="isClockedIn ? clockOut() : clockIn()">
+                    <Icon icon="ic:baseline-alarm" class="w-6 h-6" />
+                    <div class="m-2">
+                        {{ isClockedIn ? 'Clock Out' : 'Clock In' }}
+                    </div>
                 </button>
+            </div>
 
-                <button
-                    class="flex flex-col items-center justify-center bg-red-500 hover:bg-red-700 text-white font-semibold text-sm py-2 px-4 rounded-full w-32 h-32">
-                    <Icon icon="ic:baseline-alarm-off" class="w-8 h-8" />
-                    <span class="mt-2">Request Timeoff</span>
-                </button>
+            <div class="flex flex-row items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div class="text-md font-semibold text-zinc-600 dark:text-zinc-300">
+                    Today
+                </div>
+
+                <div class="text-md font-semibold text-accent-600 mr-2">
+                    {{ todayTime.hours }} Hrs {{ todayTime.minutes }} Mins
+                </div>
             </div>
         </div>
 
