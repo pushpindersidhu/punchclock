@@ -25,16 +25,32 @@ const chat: Ref<MessageType[]> = ref([]);
 const loading: Ref<boolean> = ref(true);
 const error: Ref<Error | undefined> = ref();
 const dummy: Ref<HTMLElement | null> = ref(null);
+const employees: Ref<any[]> = ref([]);
+
+const q = query(collection(firebaseDb, "employees"));
+const unsubscribeEmpSnap = onSnapshot(q, (snapshot) => {
+    employees.value = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+});
+
+onBeforeUnmount(unsubscribeEmpSnap);
 
 const sendMessage = async () => {
-    if (!auth.user) {
+    const user = auth.user;
+    if (!user) {
         alert('You must be logged in to send a message');
         return;
     }
 
+    
     if (message.value) {
+        const displayName = employees.value.find((emp) => emp.uid === user.uid)?.name;
+
         await addDoc(chatRef, {
-            uid: auth.user.uid,
+            uid: user.uid,
+            username: displayName,
             text: message.value,
             createdAt: serverTimestamp(),
         });
@@ -48,6 +64,7 @@ const unsubscribe = onSnapshot(chatQuery, (snapshot) => {
         return {
             id: doc.id,
             text: data.text,
+            username: data.username,
             uid: data.uid,
             createdAt: data.createdAt,
         };

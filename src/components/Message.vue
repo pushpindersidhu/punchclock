@@ -38,14 +38,14 @@ if (timestamp === today) {
         <div class="flex flex-col mx-2">
             <div class="flex flex-row items-center">
                 <span class="text-sm font-semibold text-zinc-700 dark:text-gray-200 hover:text-accent-500 cursor-pointer">
-                    {{ message.uid }}
+                    {{ message.username || "Anonymous" }}
                 </span>
                 <span class="mx-2 text-xs text-zinc-500 dark:text-gray-400 ">
                     {{ timestamp || "Just now" }}
                 </span>
             </div>
             <p
-                class="mt-1 text-sm text-gray-700 dark:text-gray-200 bg-gray-100 w-fit rounded-xl rounded-tl-none p-2 dark:bg-zinc-800">
+                class="mt-1 text-sm text-gray-700 dark:text-gray-200 bg-gray-100 w-fit rounded-xl rounded-tl-none p-2 dark:bg-zinc-800 max-w-xl">
                 {{ message.text }}
             </p>
         </div>
