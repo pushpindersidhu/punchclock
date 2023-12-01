@@ -93,7 +93,7 @@ watch(chat, () => {
 
 <template>
     <div class="flex h-full w-full flex-col">
-        <div class="my-1 flex-1 overflow-y-scroll">
+        <div class="my-1 flex-1 overflow-y-scroll overflow-x-hidden">
             <template v-if="loading">
                 <div>Loading...</div>
             </template>
