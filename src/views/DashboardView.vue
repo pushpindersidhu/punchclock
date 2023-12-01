@@ -249,7 +249,7 @@ watch([auth], () => {
             <div class="grow">
                 <div class="flex flex-col items-center w-full h-full bg-white dark:bg-zinc-900 py-4">
                     <div class="flex items-end flex-grow w-full mt-2 space-x-2 sm:space-x-3 h-32">
-                        <div class="relative flex flex-col items-center flex-grow pb-5 group overflow-scroll"
+                        <div class="relative flex flex-col items-center flex-grow pb-5 group overflow-hidden"
                             v-for="hours, day in weeklyHours">
                             <span class="absolute top-0 hidden -mt-6 text-xs font-bold group-hover:block">{{ hours }}
                                 Hrs</span>

@@ -106,7 +106,7 @@ watch(chat, () => {
             <div ref="dummy"></div>
         </div>
 
-        <div class="flex h-12 shrink-0 content-center items-center bg-gray-50 px-4 dark:bg-zinc-950">
+        <div class="flex h-12 shrink-0 content-center items-center bg-gray-50 px-4 dark:bg-zinc-950 overflow-y-hidden">
             <div class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center text-accent-400">
                 <Icon icon="bi:emoji-heart-eyes-fill" />
             </div>
